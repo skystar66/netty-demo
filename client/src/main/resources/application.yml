@@ -1,0 +1,12 @@
+server:
+  port: 7000
+
+spring:
+  application:
+    name: client
+
+topic:
+  client:
+    host: localhost
+    port: 9010
+    poolSize: 1

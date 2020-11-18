@@ -1,0 +1,19 @@
+server:
+  port: 9000
+
+spring:
+  application:
+    name: server
+
+executor:
+    task:
+    # websocket 和 redis 监听 执行器
+      core-pool-size: 10
+      keep-alive: 1000
+      max-size: 10
+      name: 'async-task-pool %d'
+      queue-size: 1000
+topic:
+  server:
+    host: 127.0.0.1
+    port: 9010
