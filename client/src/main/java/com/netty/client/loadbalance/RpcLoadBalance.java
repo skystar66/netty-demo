@@ -1,7 +1,7 @@
 package com.netty.client.loadbalance;
 
 
-import io.netty.channel.Channel;
+import com.netty.client.pool.client.RpcClient;
 
 /**
  * @author xuliang
@@ -15,7 +15,7 @@ public interface RpcLoadBalance {
      * @return 远程key
      * @throws RpcException 远程调用请求异常
      */
-    Channel getRemoteChannel() throws Exception;
+    RpcClient getRpcClient() throws Exception;
 
 
 }

@@ -1,4 +1,4 @@
-package com.netty.client.client;
+package com.netty.client.rpc;
 
 
 import com.netty.msg.dto.MessageDto;

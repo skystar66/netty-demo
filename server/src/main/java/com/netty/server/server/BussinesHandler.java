@@ -8,7 +8,6 @@ import com.netty.server.mertic.MerticManager;
 import com.netty.server.server.channel.NettyChannelManager;
 import io.netty.channel.Channel;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
@@ -35,7 +34,7 @@ public class BussinesHandler implements RpcAnswer {
 
         if (MerticManager.getTcpCount0()==0) {
 
-            log.info("设置time 时间");
+            log.info("设置 time 时间");
             MerticManager.time.put("time",System.currentTimeMillis());
         }
 

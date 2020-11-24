@@ -1,4 +1,4 @@
-package com.netty.server.utils;
+package com.netty.msg.utils;
 
 public class Constants {
 

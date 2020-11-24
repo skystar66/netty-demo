@@ -1,4 +1,4 @@
-package com.tbex.idmpotent.client.util;
+package com.netty.core.utils;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;

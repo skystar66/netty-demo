@@ -2,11 +2,11 @@ package com.netty.client.client;
 
 import com.netty.client.config.TopicClientConfig;
 import com.netty.client.pool.ConnectionPoolFactory;
+import com.netty.client.pool.monitor.ConnectQueueMonitor;
 import com.netty.core.client.init.RpcClientInitializer;
-import com.netty.core.dto.ManagerProperties;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.Arrays;
+import com.netty.core.cluster.ClusterCenter;
+import com.netty.core.utils.Constants;
+import com.netty.core.vo.ServerInfoVO;
 
 public class TopicClient implements Runnable {
 
@@ -15,27 +15,27 @@ public class TopicClient implements Runnable {
 
     RpcClientInitializer rpcClientInitializer;
 
-    ConnectionPoolFactory connectionPoolFactory;
 
 
     public TopicClient(TopicClientConfig rpcConfig,
-                       RpcClientInitializer rpcClientInitializer
-    ,ConnectionPoolFactory connectionPoolFactory) {
+                       RpcClientInitializer rpcClientInitializer) {
         this.rpcConfig = rpcConfig;
         this.rpcClientInitializer = rpcClientInitializer;
-        this.connectionPoolFactory=connectionPoolFactory;
+
     }
 
     @Override
     public void run() {
-        // 2. 初始化RPC Server
-        ManagerProperties managerProperties = new ManagerProperties();
-        managerProperties.setRpcPort(rpcConfig.getPort());
-        managerProperties.setRpcHost(rpcConfig.getHost());
+        ServerInfoVO serverInfoVO = ServerInfoVO.builder()
+                .zkServerPath(Constants.SERVER_CLUSTER).build();
+        /**初始化连接池*/
+        ConnectionPoolFactory.getInstance().zkSyncRpcServer(serverInfoVO);
+        /**监听节点变化*/
+        ClusterCenter.getInstance().listenerServerRpc();
+        /**监听连接池变化*/
+        ClusterCenter.getInstance().listenerServerRpcPoolSize();
+        /**监控连接池队列*/
+        ConnectQueueMonitor.getInstance().start();
 
-
-        connectionPoolFactory.init();
-
-//        rpcClientInitializer.init(Arrays.asList(managerProperties), true);
     }
 }

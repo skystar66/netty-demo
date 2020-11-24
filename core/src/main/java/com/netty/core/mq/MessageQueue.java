@@ -1,4 +1,4 @@
-package com.netty.client.mq;
+package com.netty.core.mq;
 
 import java.time.Duration;
 

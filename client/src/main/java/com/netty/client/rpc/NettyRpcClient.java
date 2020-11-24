@@ -1,4 +1,4 @@
-package com.netty.client.client;
+package com.netty.client.rpc;
 
 import com.netty.client.loadbalance.RpcLoadBalance;
 import com.netty.client.pool.client.RpcClient;

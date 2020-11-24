@@ -27,4 +27,10 @@ public class ConnectionCache {
     public static void remove(String key) {
         clientMap.remove(key);
     }
+
+    /**展示连接数量*/
+    public static int show(){
+        return clientMap.size();
+    }
+
 }

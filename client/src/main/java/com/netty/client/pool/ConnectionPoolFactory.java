@@ -1,76 +1,76 @@
 package com.netty.client.pool;
 
-import com.google.common.cache.LoadingCache;
-import com.netty.client.config.TopicClientConfig;
+import com.netty.client.pool.client.RpcClient;
+import com.netty.client.pool.connect.ConnectionCache;
+import com.netty.client.pool.manager.RpcClientManager;
 import com.netty.core.client.init.RpcClientInitializer;
-import io.netty.channel.Channel;
+import com.netty.core.helper.ZkConfigHelper;
+import com.netty.core.mq.MQProvider;
+import com.netty.core.utils.Constants;
+import com.netty.core.utils.IpUtil;
+import com.netty.core.utils.SpringUtil;
+import com.netty.core.vo.ServerInfoVO;
+import com.netty.zookeeper.ZkHelp;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
-@Component
 public class ConnectionPoolFactory {
+    private static class InstanceHolder{
+        public static final ConnectionPoolFactory instance = new ConnectionPoolFactory();
+    }
 
+    public ConnectionPoolFactory() {
+       if (rpcClientInitializer == null) {
+           rpcClientInitializer = SpringUtil.getBean(RpcClientInitializer.class);
+       }
+    }
 
-    @Autowired
-    TopicClientConfig topicClientConfig;
+    public static ConnectionPoolFactory getInstance(){
+        return InstanceHolder.instance;
+    }
 
-    @Autowired
     RpcClientInitializer rpcClientInitializer;
 
 
     /**
-     * 共享连接 nodeId ----> channels
+     * 初始化zk RPC连接
+     *
+     * @param
      */
-    public static final Map<Integer, Channel> sharedConnectPool =
-            new ConcurrentHashMap<>();
+    public void zkSyncRpcServer(ServerInfoVO serverInfoVO) {
 
+        int rpcPoolSize = ZkConfigHelper.getInstance().getRpcPoolSize();
+        int cacheRpcpoolSize = ConnectionCache.rpcPoolSize();
+        int initPoolSize = rpcPoolSize - cacheRpcpoolSize;
+        int initIndex = 0;
+        if (cacheRpcpoolSize > 0) {
+            initIndex = cacheRpcpoolSize;
+        }
+        ZkHelp zk = ZkHelp.getInstance();
+        List<String> rpcServerList = zk.getChildren(serverInfoVO.getZkServerPath());
+        final String localIp = IpUtil.getLocalIP();
+        log.info("开始注册rpc长连接服务...	localIp={},  rpcServerList={},  zkPath={}", localIp, rpcServerList, serverInfoVO.getZkServerPath());
+        for (final String serverIp : rpcServerList) {
+            log.info("serverIp:{}", serverIp);
+            try {
+                //创建连接池
+                for (int index = initIndex; index < rpcPoolSize; index++) {
+                    int finalIndex = index;
 
-    /**
-     * 初始化连接
-     */
-    public void init() {
-        for (int i = 0; i < topicClientConfig.getPoolSize(); i++) {
-                //开始连接server端
-                rpcClientInitializer.init(topicClientConfig.getHost(),
-                        topicClientConfig.getPort(), true);
-//                sharedConnectPool.put(i,channel);
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            RpcClientManager.getInstance().connect(serverIp,Constants.SERVER_PORT, finalIndex);
+                        }
+                    }).start();
+                }
+            } catch (Exception e) {
+                log.error("RPC create error! 服务创建失败! host=" + serverIp + "	" + e);
+            }
         }
     }
 
-
-
-
-    /**
-     * 随机取
-     */
-    public Channel getChannelsRandom() {
-//        int random = Randomut
-        Random r = new Random(0);
-//        return sharedConnectPool.get(nodeID);
-        return sharedConnectPool.get(r.nextInt(topicClientConfig.getPoolSize()));
-    }
-
-
-//    /**
-//     * 根据权重获取server 端服务
-//     */
-//
-//    public ServerAdrWeight getServerRoute(int weight, LoadingCache<String, ServerAdrWeight> serverCacheMap) {
-//        int random = RandomUtils.nextInt(0, weight);
-//        int sum = 0;
-//
-//        for (Map.Entry<String, ServerAdrWeight> stringServerAdrWeightEntry : serverCacheMap.asMap().entrySet()) {
-//            sum += stringServerAdrWeightEntry.getValue().getWeight();
-//            if (sum > 0 && sum >= random) {
-//                return stringServerAdrWeightEntry.getValue();
-//            }
-//        }
-//        return null;
-//    }
 
 }

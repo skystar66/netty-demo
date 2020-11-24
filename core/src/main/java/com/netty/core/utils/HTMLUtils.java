@@ -1,4 +1,4 @@
-package com.liveme.common.utils;
+package com.netty.core.utils;
 
 
 import org.apache.commons.lang.StringEscapeUtils;

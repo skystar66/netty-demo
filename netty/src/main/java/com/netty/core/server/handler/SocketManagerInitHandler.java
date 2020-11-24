@@ -30,7 +30,7 @@ public class SocketManagerInitHandler extends ChannelInboundHandlerAdapter {
 
     private RpcCmd heartCmd;
 
-    @Autowired
+    @Autowired(required = false)
     SocketChannelManager socketChannelManager;
 
 

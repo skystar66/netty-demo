@@ -1,4 +1,5 @@
 package com.netty.core.client.handler.init;
+import com.netty.core.client.handler.KeepaliveHandler;
 import com.netty.core.client.handler.NettyClientRetryHandler;
 import com.netty.core.handler.ReciveDataHandler;
 import com.netty.core.handler.RpcAnswerHandler;
@@ -33,7 +34,7 @@ public class NettyRpcClientChannelInitializer extends ChannelInitializer<Channel
     private NettyClientRetryHandler nettyClientRetryHandler;
 
     @Autowired
-    private SocketManagerInitHandler socketManagerInitHandler;
+    private KeepaliveHandler keepaliveHandler;
 
     @Autowired
     private ReciveDataHandler reciveDataHandler;
@@ -55,7 +56,7 @@ public class NettyRpcClientChannelInitializer extends ChannelInitializer<Channel
         ch.pipeline().addLast(new SendDataHandler());
         //断线重连的handler
         ch.pipeline().addLast(nettyClientRetryHandler);
-        ch.pipeline().addLast(socketManagerInitHandler);
+        ch.pipeline().addLast(keepaliveHandler);
         ch.pipeline().addLast(rpcAnswerHandler);
 
 

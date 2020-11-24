@@ -1,8 +1,7 @@
 package com.netty.client.controller;
 
 
-import com.alibaba.fastjson.JSONObject;
-import com.netty.client.client.RpcClient;
+import com.netty.client.rpc.ReqRpcClient;
 import com.netty.core.util.SnowflakeIdWorker;
 import com.netty.msg.MessageConstants;
 import com.netty.msg.dto.MessageDto;
@@ -21,7 +20,7 @@ public class ClientController {
 
 
     @Autowired
-    RpcClient rpcClient;
+    ReqRpcClient reqRpcClient;
 
 
     @Autowired
@@ -42,7 +41,7 @@ public class ClientController {
             messageDto.setState(MessageConstants.STATE_OK);
             rpcCmd.setMsg(messageDto);
             rpcCmd.setEvent(EventType.CANCEL.name());
-             rpcClient.request2(rpcCmd);
+             reqRpcClient.request2(rpcCmd);
         }
         return "success";
     }

@@ -12,4 +12,9 @@
     <artifactId>zookeeper</artifactId>
 
 
+    <dependencies>
+
+    </dependencies>
+
+
 </project>

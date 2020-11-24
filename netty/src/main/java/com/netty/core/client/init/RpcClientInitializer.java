@@ -34,14 +34,11 @@ public class RpcClientInitializer implements DisposableBean {
     @Autowired
     private NettyRpcClientChannelInitializer nettyRpcClientChannelInitializer;
 
-    @Autowired
-    SocketChannelManager socketChannelManager;
-
 
     private EventLoopGroup workerGroup;
 
 
-    public void init(List<ManagerProperties> hosts, boolean sync) {
+    public void init(List<ManagerProperties> hosts, boolean sync) throws Exception {
         NettyContext.nettyType = NettyType.client;
         NettyContext.params = hosts;
         workerGroup = new NioEventLoopGroup();
@@ -59,7 +56,7 @@ public class RpcClientInitializer implements DisposableBean {
     }
 
 
-    public void init(String host, Integer port, boolean sync) {
+    public void init(String host, Integer port, boolean sync) throws Exception {
         NettyContext.nettyType = NettyType.client;
         NettyContext.params = host;
         workerGroup = new NioEventLoopGroup();
@@ -74,32 +71,44 @@ public class RpcClientInitializer implements DisposableBean {
         }
     }
 
-    public synchronized Optional<Future> connect(SocketAddress socketAddress) {
-        for (int i = 0; i < 3; i++) {
-            if (!socketChannelManager.contains(socketAddress.toString())) {
-                try {
-                    log.info("Try connect socket({}) - count {}", socketAddress, i + 1);
-                    Bootstrap b = new Bootstrap();
-                    b.group(workerGroup);
-                    b.channel(NioSocketChannel.class);
-                    b.option(ChannelOption.SO_KEEPALIVE, true);
-                    b.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000);
-                    b.handler(nettyRpcClientChannelInitializer);
-                    return Optional.of(b.connect(socketAddress).syncUninterruptibly());
-                } catch (Exception ex) {
-                    log.warn("Connect socket({}) fail. {}ms latter try again.", socketAddress, 6000);
-                    try {
-                        /**重连间隔 默认：6s*/
-                        Thread.sleep(6 * 1000);
-                    } catch (InterruptedException ex2) {
-                        ex2.printStackTrace();
-                    }
-                }
+    public ChannelFuture initFuture(String host, Integer port, boolean sync){
+        NettyContext.nettyType = NettyType.client;
+        NettyContext.params = host;
+        workerGroup = new NioEventLoopGroup();
+        Optional<ChannelFuture> future = connect2(new InetSocketAddress(host, port));
+        log.info("Success Connect Idp Server Address : {}", host + ":" + port);
+        if (sync && future.isPresent()) {
+            try {
+                return future.get();
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
             }
         }
-        log.warn("Finally, netty connection fail , socket is {}", socketAddress);
-        //报警，该服务失效
-        return Optional.empty();
+        return null;
+    }
+
+
+    public synchronized Optional<Future> connect(SocketAddress socketAddress) {
+
+        Bootstrap b = new Bootstrap();
+        b.group(workerGroup);
+        b.channel(NioSocketChannel.class);
+        b.option(ChannelOption.SO_KEEPALIVE, true);
+        b.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000);
+        b.handler(nettyRpcClientChannelInitializer);
+        return Optional.of(b.connect(socketAddress).syncUninterruptibly());
+
+    }
+
+
+    public synchronized Optional<ChannelFuture> connect2(SocketAddress socketAddress){
+        Bootstrap b = new Bootstrap();
+        b.group(workerGroup);
+        b.channel(NioSocketChannel.class);
+        b.option(ChannelOption.SO_KEEPALIVE, true);
+        b.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000);
+        b.handler(nettyRpcClientChannelInitializer);
+        return Optional.of(b.connect(socketAddress).syncUninterruptibly());
     }
 
 

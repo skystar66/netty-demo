@@ -1,6 +1,9 @@
 package com.netty.server.callback;
 
-public class CallBack implements com.netty.core.callback.CallBack {
+import org.springframework.stereotype.Component;
+
+@Component
+public class ServerCallBack implements com.netty.core.callback.CallBack {
 
 
     @Override

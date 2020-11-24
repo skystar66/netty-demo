@@ -7,6 +7,8 @@ public class Constants {
     public static String SUB_MSG = "sub_msg";
 
 
+    //缓存分隔符
+    public static String SEQ = "__";
 
 
 

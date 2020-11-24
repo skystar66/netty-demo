@@ -1,6 +1,7 @@
 package com.netty.client.loadbalance;
 
-import com.netty.client.client.channel.NettyChannelManager;
+import com.netty.client.pool.client.RpcClient;
+import com.netty.client.pool.connect.ConnectionCache;
 import io.netty.channel.Channel;
 import org.springframework.stereotype.Component;
 
@@ -21,13 +22,13 @@ public class RandomLoadBalance implements RpcLoadBalance {
 
 
     @Override
-    public Channel getRemoteChannel() throws Exception {
-        int size = NettyChannelManager.getInstance().currentSize();
+    public RpcClient getRpcClient() throws Exception {
+        int size = ConnectionCache.rpcPoolSize();
         int randomIndex = random.nextInt(size);
         int index = 0;
-        for (Channel channel : NettyChannelManager.getInstance().getChannelGroup()) {
+        for (RpcClient client : ConnectionCache.clientMap.values()) {
             if (index == randomIndex) {
-                return channel;
+                return client;
             }
             index++;
         }

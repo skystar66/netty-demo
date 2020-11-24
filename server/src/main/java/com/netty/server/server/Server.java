@@ -2,7 +2,11 @@ package com.netty.server.server;
 
 
 import com.netty.core.dto.ManagerProperties;
+import com.netty.core.helper.ZkConfigHelper;
+import com.netty.core.reg.RegZookeeper;
 import com.netty.core.server.init.RpcServerInitializer;
+import com.netty.core.utils.Constants;
+import com.netty.core.utils.IpUtil;
 import com.netty.server.config.TopicServerConfig;
 
 public class Server implements Runnable {
@@ -33,9 +37,13 @@ public class Server implements Runnable {
 
         // 2. 初始化RPC Server
         ManagerProperties managerProperties = new ManagerProperties();
-        managerProperties.setCheckTime(rpcConfig.getHeartTime());
-        managerProperties.setRpcPort(rpcConfig.getPort());
-        managerProperties.setRpcHost(rpcConfig.getHost());
+        managerProperties.setCheckTime(ZkConfigHelper.getInstance().getCommonConfig().getHeartTime());
+        managerProperties.setRpcPort(Constants.SERVER_PORT);
+        managerProperties.setRpcHost(IpUtil.getLocalIP());
         rpcServerInitializer.init(managerProperties);
+
+        /**注册节点*/
+        new RegZookeeper().regIp(Constants.SERVER_CLUSTER);
+
     }
 }

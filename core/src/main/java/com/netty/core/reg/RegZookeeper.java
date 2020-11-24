@@ -1,5 +1,7 @@
-package com.netty.zookeeper.reg;
+package com.netty.core.reg;
 
+import com.netty.core.utils.IpUtil;
+import com.netty.zookeeper.ZkHelp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -7,14 +9,14 @@ import java.util.List;
 
 /**
  * ZK注册IP
- * @author wgx
- * @version 2015年5月4日
+ * @author xl
+ * @version 2020年11月20日
  */
 public class RegZookeeper {
 	
 	static ZkHelp zk = ZkHelp.getInstance();
 	
-	private static Logger log = LoggerFactory.getLogger(com.liveme.common.utils.RegZookeeper.class);
+	private static Logger log = LoggerFactory.getLogger(RegZookeeper.class);
 	
 	/**
 	 * 注册私网IP (为RPC提供调用服务)
@@ -22,14 +24,8 @@ public class RegZookeeper {
 	public void regIp(String clusterPath) {
 		String zkPath = clusterPath;
 		String privateIp = IpUtil.getLocalIP();
-
-		String awsLocalIp = IpUtil.getAwsLocalIp();
-		log.info("本机IP地址 privateIp={}, awsLocalIp={}", privateIp, awsLocalIp);
-		if(null == awsLocalIp) {
-			awsLocalIp = privateIp;
-		}
-		
-		this.regIp(zkPath, awsLocalIp);
+		log.info("本机IP地址 privateIp={}, awsLocalIp={}", privateIp);
+		this.regIp(zkPath, privateIp);
 	}
 	
 	

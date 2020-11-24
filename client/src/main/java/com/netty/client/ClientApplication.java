@@ -18,9 +18,6 @@ public class ClientApplication implements ApplicationRunner {
 
     @Autowired
     RpcClientInitializer rpcClientInitializer;
-    @Autowired
-    ConnectionPoolFactory connectionPoolFactory;
-
 
 
     public static void main(String[] args) {
@@ -30,7 +27,7 @@ public class ClientApplication implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        Thread thread = new Thread(new TopicClient(rpcConfig, rpcClientInitializer,connectionPoolFactory));
+        Thread thread = new Thread(new TopicClient(rpcConfig, rpcClientInitializer));
         thread.setDaemon(true);
         thread.start();
     }

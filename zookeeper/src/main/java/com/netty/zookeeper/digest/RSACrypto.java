@@ -1,5 +1,9 @@
-package org.liveme.zookeeper.digest;
+package com.netty.zookeeper.digest;
 
+import sun.misc.BASE64Decoder;
+import sun.misc.BASE64Encoder;
+
+import javax.crypto.Cipher;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -9,15 +13,12 @@ import java.security.PublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Properties;
+
 //import org.bouncycastle.asn1.ASN1Sequence;
-
-import javax.crypto.Cipher;
-
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
 
 //import org.bouncycastle.asn1.pkcs.RSAPrivateKeyStructure;
 
+/**加密算法*/
 public class RSACrypto {
 
   /** */

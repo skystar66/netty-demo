@@ -1,11 +1,13 @@
 package com.netty.core.client.handler;
 
 
+import com.netty.core.callback.CallBack;
 import com.netty.core.util.SnowflakeIdWorker;
 import com.netty.msg.MessageConstants;
 import com.netty.msg.dto.MessageDto;
 import com.netty.msg.dto.RpcCmd;
 import com.netty.msg.manager.SocketChannelManager;
+import com.netty.msg.utils.AttributeKeys;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -29,14 +31,10 @@ import java.net.SocketAddress;
 @Component
 public class NettyClientRetryHandler extends ChannelInboundHandlerAdapter {
 
-
     private RpcCmd heartCmd;
 
     @Autowired
-    NettyRetryConnect retryConnect;
-
-    @Autowired
-    SocketChannelManager socketChannelManager;
+    CallBack callBack;
 
     /**
      * 构建心跳信息
@@ -50,36 +48,63 @@ public class NettyClientRetryHandler extends ChannelInboundHandlerAdapter {
                 + SnowflakeIdWorker.getInstance().nextId());
         heartCmd.setEvent(MessageConstants.ACTION_HEART_CHECK);
 
-//        this.clientInitCallBack = clientInitCallBack;
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         super.channelActive(ctx);
-//        keepSize = NettyContext.currentParam(List.class).size();
 
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         super.channelInactive(ctx);
-        SocketAddress socketAddress = ctx.channel().remoteAddress();
-        socketChannelManager.removeChannel(ctx.channel());
-        log.error("socketAddress:{} ", socketAddress);
-        retryConnect.reConnect(socketAddress);
+        String rpcServer = ctx.channel().attr(AttributeKeys.RPC_SERVER).get();
+        Integer rpcPort = ctx.channel().attr(AttributeKeys.RPC_PORT).get();
+        Integer rpcIndex = ctx.channel().attr(AttributeKeys.RPC_INDEX).get();
+
+        String localAddress = ctx.channel().localAddress().toString();
+        String remoteAddress = ctx.channel().remoteAddress().toString();
+        log.info("连接非活动!!!! rpcServer={}, rpcPort={}, channel={}, localAddress={}", rpcServer, rpcPort, ctx.channel(), localAddress);
+
+        closeChannel(ctx);
+        //解决IP为0.0.0.0/0.0.0.0:33703的问题
+        if(localAddress.startsWith("0.0.0.0") || remoteAddress.startsWith("0.0.0.0")){
+            //停止
+            log.error("localAddress={} 为无效地址, 停止重连!", localAddress);
+        }else{
+            log.info("开始执行重连业务...");
+            //重连连接
+            callBack.retryConnect(rpcServer, rpcPort, rpcIndex);
+
+        }
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         log.error("NettyClientRetryHandler - exception . ", cause);
-        socketChannelManager.removeChannel(ctx.channel());
         if (cause instanceof ConnectException) {
+            String rpcServer = ctx.channel().attr(AttributeKeys.RPC_SERVER).get();
+            Integer rpcPort = ctx.channel().attr(AttributeKeys.RPC_PORT).get();
+            Integer rpcIndex = ctx.channel().attr(AttributeKeys.RPC_INDEX).get();
+            String rpcPoolKey = ctx.channel().attr(AttributeKeys.RPC_POOL_KEY).get() ;
             Thread.sleep(1000 * 15);
             log.error("try connect tx-manager:{} ", ctx.channel().remoteAddress());
-            retryConnect.reConnect(ctx.channel().remoteAddress());
+            callBack.removeConnect(rpcPoolKey);
+            callBack.retryConnect(rpcServer, rpcPort, rpcIndex);
         }
         //发送数据包检测是否断开连接.
         ctx.writeAndFlush(heartCmd);
 
     }
+
+
+    private void closeChannel(ChannelHandlerContext ctx) throws InterruptedException {
+        //清除map中连接信息
+        String rpcPoolIndex = ctx.channel().attr(AttributeKeys.RPC_POOL_KEY).get() ;
+        callBack.removeConnect(rpcPoolIndex);
+        log.info("清除rpcPoolIndex={}", rpcPoolIndex);
+        ctx.channel().close().sync();
+    }
+
 }

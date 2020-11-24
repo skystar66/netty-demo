@@ -18,7 +18,7 @@ public class NettyRetryConnect {
      */
     public void reConnect(SocketAddress socketAddress) {
         Objects.requireNonNull(socketAddress, "non support!");
-        nettyRpcClientInitializer.connect(socketAddress);
+//        nettyRpcClientInitializer.connect(socketAddress);
     }
 
 

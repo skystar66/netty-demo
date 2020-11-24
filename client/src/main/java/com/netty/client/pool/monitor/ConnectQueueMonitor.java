@@ -12,14 +12,26 @@ import java.time.Duration;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@Slf4j
-public class RetryConnectMonitor {
 
+/**
+ * rpc 连接监控
+ */
+@Slf4j
+public class ConnectQueueMonitor {
+
+
+    private static class InstanceHolder {
+        public static final ConnectQueueMonitor instance = new ConnectQueueMonitor();
+    }
+
+    public static ConnectQueueMonitor getInstance() {
+        return ConnectQueueMonitor.InstanceHolder.instance;
+    }
 
 
     private ExecutorService msgSenderExecutor;
 
-    public RetryConnectMonitor() {
+    public ConnectQueueMonitor() {
     }
 
     public void start() {
@@ -27,17 +39,17 @@ public class RetryConnectMonitor {
         msgSenderExecutor = Executors.newFixedThreadPool(Constants.retryQueueCount);
 
         for (int i = 0; i < Constants.retryQueueCount; i++) {
-            msgSenderExecutor.execute(new RetryConnectConsumerWorker(i));
+            msgSenderExecutor.execute(new ConnectConsumerWorker(i));
         }
     }
 
 
-    private class RetryConnectConsumerWorker implements Runnable {
+    private class ConnectConsumerWorker implements Runnable {
 
         private final Duration timeout = Duration.ofMillis(100);
         private final MessageQueue<ServerInfoVO> retryConnectQueue;
 
-        public RetryConnectConsumerWorker(int index) {
+        public ConnectConsumerWorker(int index) {
             this.retryConnectQueue = MQProvider.getRetryConnectQueueByIndex(index);
         }
 
@@ -48,7 +60,7 @@ public class RetryConnectMonitor {
                     if (null != retryConnectQueue) {
                         ServerInfoVO msg = retryConnectQueue.pop(timeout);
                         RpcClientManager.getInstance().connect(msg.getRpcServer(),
-                                msg.getRpcPort(),msg.getRpcServerIndex());
+                                msg.getRpcPort(), msg.getRpcServerIndex());
                     }
                 } catch (Exception ignore) {
                     log.warn("fromRPCMsgQueue.pop", ignore);
@@ -62,5 +74,4 @@ public class RetryConnectMonitor {
     }
 
 
-
-    }
+}

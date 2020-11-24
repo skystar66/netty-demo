@@ -1,4 +1,4 @@
-package com.netty.client.utils;
+package com.netty.server.utils;
 
 import io.netty.util.AttributeKey;
 

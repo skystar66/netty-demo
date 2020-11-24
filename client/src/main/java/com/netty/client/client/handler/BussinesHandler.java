@@ -1,4 +1,4 @@
-package com.netty.client.client;
+package com.netty.client.client.handler;
 
 import com.netty.msg.RpcAnswer;
 import com.netty.msg.dto.RpcCmd;
