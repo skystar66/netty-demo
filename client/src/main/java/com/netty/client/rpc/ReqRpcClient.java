@@ -11,7 +11,7 @@ import com.netty.msg.dto.RpcCmd;
  *
  * @author xuliang
  */
-public abstract class RpcClient {
+public abstract class ReqRpcClient {
 
 
     /**
