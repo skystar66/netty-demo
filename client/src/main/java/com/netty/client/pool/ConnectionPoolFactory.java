@@ -41,9 +41,9 @@ public class ConnectionPoolFactory {
      */
     public void zkSyncRpcServer(ServerInfoVO serverInfoVO) {
 
+        /**配置的连接池队列 一定要比缓存的连接池队列数量要大，只支持高峰时期的扩容，不支持缩容*/
         int rpcPoolSize = ZkConfigHelper.getInstance().getRpcPoolSize();
         int cacheRpcpoolSize = ConnectionCache.rpcPoolSize();
-        int initPoolSize = rpcPoolSize - cacheRpcpoolSize;
         int initIndex = 0;
         if (cacheRpcpoolSize > 0) {
             initIndex = cacheRpcpoolSize;

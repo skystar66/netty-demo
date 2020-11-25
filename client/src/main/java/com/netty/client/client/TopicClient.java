@@ -32,7 +32,7 @@ public class TopicClient implements Runnable {
         ConnectionPoolFactory.getInstance().zkSyncRpcServer(serverInfoVO);
         /**监听节点变化*/
         ClusterCenter.getInstance().listenerServerRpc();
-        /**监听连接池变化*/
+        /**监听连接池数量变化*/
         ClusterCenter.getInstance().listenerServerRpcPoolSize();
         /**监控连接池队列*/
         ConnectQueueMonitor.getInstance().start();
