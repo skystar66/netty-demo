@@ -1,5 +1,7 @@
 package com.netty.core.server.handler;
 
+import com.alibaba.fastjson.JSONObject;
+import com.netty.core.dto.ManagerProperties;
 import com.netty.core.util.SnowflakeIdWorker;
 import com.netty.msg.MessageConstants;
 import com.netty.msg.dto.MessageDto;
@@ -53,6 +55,8 @@ public class SocketManagerInitHandler extends ChannelInboundHandlerAdapter {
         super.channelActive(ctx);
         log.info("stocketManager add channel  remote address : {}", ctx.channel().remoteAddress().toString());
         socketChannelManager.addChannel(ctx.channel());
+        //TODO jmeter 压测 1 对应的 asic码 49
+//        ctx.channel().writeAndFlush("1");
     }
 
     @Override
@@ -68,7 +72,8 @@ public class SocketManagerInitHandler extends ChannelInboundHandlerAdapter {
         if (IdleStateEvent.class.isAssignableFrom(evt.getClass())) {
             IdleStateEvent event = (IdleStateEvent) evt;
             if (event.state() == IdleState.READER_IDLE) {
-                ctx.writeAndFlush(heartCmd);
+                //todo 压测 不加消息
+//                ctx.writeAndFlush(heartCmd);
             }
         }
     }

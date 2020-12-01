@@ -16,10 +16,11 @@ public class Server implements Runnable {
 
     RpcServerInitializer rpcServerInitializer;
 
-    public Server(TopicServerConfig rpcConfig,
-                  RpcServerInitializer rpcServerInitializer) {
-        this.rpcConfig = rpcConfig;
-        this.rpcServerInitializer = rpcServerInitializer;
+    public Server(TopicServerConfig rpcCnfig,
+                  RpcServerInitializer rpcServerInitialiozer) {
+
+        this.rpcConfig = rpcCnfig;
+        this.rpcServerInitializer = rpcServerInitialiozer;
     }
 
 

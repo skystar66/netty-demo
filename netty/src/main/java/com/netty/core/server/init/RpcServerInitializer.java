@@ -41,13 +41,13 @@ public class RpcServerInitializer implements DisposableBean {
         NettyContext.params = managerProperties;
         nettyRpcServerChannelInitializer.setManagerProperties(managerProperties);
         int port = managerProperties.getRpcPort();
-        bossGroup = new NioEventLoopGroup();
-        workerGroup = new NioEventLoopGroup();
+        bossGroup = new NioEventLoopGroup(2);
+        workerGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors()*2);
         try {
             ServerBootstrap b = new ServerBootstrap();
             b.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
-                    .option(ChannelOption.SO_BACKLOG, 100)
+                    .option(ChannelOption.SO_BACKLOG, 128)
                     .handler(new LoggingHandler(LogLevel.INFO))
                     .childHandler(nettyRpcServerChannelInitializer);
 

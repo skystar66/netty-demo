@@ -15,6 +15,9 @@
         <module>netty-msg</module>
         <module>zookeeper</module>
         <module>core</module>
+        <module>current-server</module>
+        <module>current-client</module>
+        <module>jmeter-netty-script</module>
     </modules>
 
 

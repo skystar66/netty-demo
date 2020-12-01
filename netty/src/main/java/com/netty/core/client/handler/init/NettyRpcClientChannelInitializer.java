@@ -39,6 +39,9 @@ public class NettyRpcClientChannelInitializer extends ChannelInitializer<Channel
     @Autowired
     private ReciveDataHandler reciveDataHandler;
 
+    @Autowired
+    SocketManagerInitHandler socketManagerInitHandler;
+
 
     @Override
     protected void initChannel(Channel ch) throws Exception {

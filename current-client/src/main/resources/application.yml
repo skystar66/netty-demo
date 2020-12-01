@@ -1,0 +1,12 @@
+server:
+  port: 7000
+
+spring:
+  application:
+    name: client
+
+topic:
+  client:
+    host: 10.61.153.46
+    port: 9020
+    poolSize: 1
