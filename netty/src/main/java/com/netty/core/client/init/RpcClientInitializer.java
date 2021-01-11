@@ -35,13 +35,13 @@ public class RpcClientInitializer implements DisposableBean {
     private NettyRpcClientChannelInitializer nettyRpcClientChannelInitializer;
 
 
-    private EventLoopGroup workerGroup;
+    //所有连接共有一个线程池
+    private static EventLoopGroup workerGroup = new NioEventLoopGroup(10);
 
 
     public void init(List<ManagerProperties> hosts, boolean sync) throws Exception {
         NettyContext.nettyType = NettyType.client;
         NettyContext.params = hosts;
-        workerGroup = new NioEventLoopGroup();
         for (ManagerProperties host : hosts) {
             Optional<Future> future = connect(new InetSocketAddress(host.getRpcHost(), host.getRpcPort()));
             log.info("Success Connect Topic Server Address : {}", host.getRpcHost() + ":" + host.getRpcPort());
@@ -59,7 +59,6 @@ public class RpcClientInitializer implements DisposableBean {
     public void init(String host, Integer port, boolean sync) throws Exception {
         NettyContext.nettyType = NettyType.client;
         NettyContext.params = host;
-        workerGroup = new NioEventLoopGroup();
         Optional<Future> future = connect(new InetSocketAddress(host, port));
         log.info("Success Connect Idp Server Address : {}", host + ":" + port);
         if (sync && future.isPresent()) {
@@ -74,7 +73,6 @@ public class RpcClientInitializer implements DisposableBean {
     public ChannelFuture initFuture(String host, Integer port, boolean sync){
         NettyContext.nettyType = NettyType.client;
         NettyContext.params = host;
-        workerGroup = new NioEventLoopGroup();
         Optional<ChannelFuture> future = connect2(new InetSocketAddress(host, port));
         log.info("Success Connect Idp Server Address : {}", host + ":" + port);
         if (sync && future.isPresent()) {
